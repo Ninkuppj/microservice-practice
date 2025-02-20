@@ -7,14 +7,14 @@ import Link from 'next/link';
 import { useProfile } from '@/app/lib/hooks/useProfile';
 import { CONSTANTS } from '@/app/lib/constants';
 function Sidebar() {
-  const {data}:any = useSession();
+  const { data }: any = useSession();
   // const setOpen = useSetRecoilState();
   // const {profile}:any = useProfile();
   return (
     <nav className='z-20 hidden md:flex flex-col md:w-[8%] xl:w-[16%] 3xl:w-[21%] px-3 pt-2 pb-5 fixed top-0 left-0 h-screen border-r border-[#dbdbdb] bg-white text-black'>
       <div className='hidden xl:inline-flex px-3 pt-[25px] pb-4 mt-[4px]'>
         <a href='/'>
-          <p className='font-grandista text-2xl opacity-90'>OM-Training</p>
+          <p className='font-grandista text-2xl opacity-90'>Training</p>
         </a>
       </div>
       <div className='hidden md:inline-flex xl:hidden mb-1 mt-[21px] p-[0.715rem] pb-[23px]'>
@@ -28,16 +28,16 @@ function Sidebar() {
 
       <div className='pt-1 xl:pt-[9px] flex-grow'>
         <Link href={'/'}>
-        <SidebarRow path={<HomeIcon />} title='Home' active={true} />
+          <SidebarRow path={<HomeIcon />} title='Home' active={true} />
         </Link>
-        <hr className="border-1 w-full"/>
-        {data.user.role!== CONSTANTS.ROLE.USER&&<Link href={'/dashboard/users'} >
-        <SidebarRow path={<UserIcon />} title='User' />
-        <hr className="border-1 w-full"/>
+        <hr className="border-1 w-full" />
+        {data.user.role !== CONSTANTS.ROLE.USER && <Link href={'/dashboard/users'} >
+          <SidebarRow path={<UserIcon />} title='User' />
+          <hr className="border-1 w-full" />
         </Link>
         }
         <Link href={'/dashboard/vessels'}>
-        <SidebarRow src={'/images/Vessel.png'} title='Vessel' />
+          <SidebarRow src={'/images/Vessel.png'} title='Vessel' />
         </Link>
         {/* <SidebarRow path={<NotificationsIcon />} title='Notifications' /> */}
       </div>
@@ -58,13 +58,13 @@ function HomeIcon() {
   );
 }
 
-function UserIcon (){
+function UserIcon() {
   return (
     <>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="88 18 78 200" id="user-circle">
-      <circle cx="128" cy="128" r="86" fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="12"></circle>
-      <circle cx="128" cy="120" r="30" fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="12"></circle>
-      <path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="10" d="M63.79905,199.37405a72.02812,72.02812,0,0,1,128.40177-.00026"></path></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="88 18 78 200" id="user-circle">
+        <circle cx="128" cy="128" r="86" fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="12"></circle>
+        <circle cx="128" cy="120" r="30" fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="12"></circle>
+        <path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="10" d="M63.79905,199.37405a72.02812,72.02812,0,0,1,128.40177-.00026"></path></svg>
     </>
   )
 }
