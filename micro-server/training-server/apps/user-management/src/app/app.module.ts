@@ -1,6 +1,5 @@
-import { ConfigModule, ConfigService } from '@config';
+import { ConfigModule } from '@config';
 import { Module } from '@nestjs/common';
-import { ClientProxyFactory, ClientsModule } from '@nestjs/microservices';
 import { connectDB } from '@shared';
 import { UserModule } from './user/user.module';
 
@@ -11,8 +10,6 @@ import { UserModule } from './user/user.module';
     ConfigModule
   ],
   controllers: [],
-  providers: [
-
-  ],
+  providers: [],
 })
 export class AppModule {}

@@ -76,7 +76,6 @@ export class AuthRepository extends Repository<Role>{
   public async refreshToken(refreshToken: string){
     try{
       let data = this.jwtService.verify(refreshToken, {ignoreExpiration: true});
-      console.log('data',data);
       const newAccessToken=this.createToken(data['userId'],data['roleId']);
       return newAccessToken;
     }catch(err){

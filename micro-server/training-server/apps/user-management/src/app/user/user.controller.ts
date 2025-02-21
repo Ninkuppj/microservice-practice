@@ -7,20 +7,19 @@ import {
   HttpStatus,
   Inject,
   Param,
-  ParseIntPipe,
   Post,
   Put,
+  Query,
   UseFilters,
   UseGuards,
-  UseInterceptors,
+  UseInterceptors
 } from '@nestjs/common';
 
 import {
   AuthGuard,
   Authorization,
   CONSTANTS,
-  Permission,
-  decodeToken,
+  Permission
 } from '@config';
 import {
   ClientKafka,
@@ -35,61 +34,50 @@ import {
   IServiceUserGetByIdResponse,
   IServiceUserSearchResponse,
   IServiveTokenCreateResponse,
-  ITokenDataResponse,
   IUser,
   LoginDTO,
-  StringValidationPipe,
-  User,
-  UserDTO,
   ValidationInterceptor,
   createNotificationDTO,
   createUserDTO,
-  udpateUserDTO,
+  udpateUserDTO
 } from '@shared';
-import { UserService } from './user.service';
 import { firstValueFrom } from 'rxjs';
+import { UserService } from './user.service';
 // import { Authorization, CONSTANTS, Permission } from '@config';
 
 @Controller()
-@UseGuards(AuthGuard)
-@UseFilters(CustomExceptionFilter)
 export class UserController {
   constructor(
-    @Inject('NOTIFICATIONS_SERVICE')
-    private readonly notificationServiceClient: ClientKafka,
+    // @Inject('NOTIFICATIONS_SERVICE')
+    // private readonly notificationServiceClient: ClientKafka,
     @Inject('AUTH_SERVICE') private readonly authService: ClientProxy,
     private readonly userService: UserService
   ) {}
 
-  // @MessagePattern({cmd: 'user_create'})
-  @Post()
-  @UseInterceptors(new ValidationInterceptor(createUserDTO))
-  @Authorization(true)
-  @Permission([CONSTANTS.ROLE.ADMIN], [CONSTANTS.PERMISSION.CREATE])
+  @MessagePattern({cmd: 'user_create'})
   async createUser(
     @Body() user: createUserDTO
   ): Promise<CreateUserResponseDto> {
+
     const userDTO: IUser = await this.userService.createUser(user);
     if (userDTO) {
-      const notice: createNotificationDTO = {
-        title: `Your's profile just created`,
-        desc: `${user.username}'s profile has been created by Admin`,
-        // url:`/users/profile?id=${createUserResponse.user._id}` ,
-        // type:'info'
-        isSeen: true,
-        email: userDTO.email,
-        user: userDTO.id,
-        updateBy: user.updateBy,
-        createBy: user.updateBy,
-      };
+      // const notice: createNotificationDTO = {
+      //   title: `Your's profile just created`,
+      //   desc: `${user.username}'s profile has been created by Admin`,
+      //   // url:`/users/profile?id=${createUserResponse.user._id}` ,
+      //   // type:'info'
+      //   isSeen: true,
+      //   email: userDTO.email,
+      //   user: userDTO.id,
+      //   updateBy: user.updateBy,
+      //   createBy: user.updateBy,
+      // };
 
-      await this.notificationServiceClient.emit('Create_Message', notice);
+      // await this.notificationServiceClient.emit('Create_Message', notice);
       return {
         status: HttpStatus.OK,
         message: CONSTANTS.LOG_MESSAGE_REQUEST.SUCCESS,
-        data: {
-          user: userDTO,
-        },
+        user: userDTO,
       };
     } else {
       return {
@@ -140,9 +128,8 @@ export class UserController {
     return result;
   }
 
+  @MessagePattern('user_get_all')
   @Get()
-  @Authorization(true)
-  // @Permission([CONSTANTS.ROLE.ADMIN], [CONSTANTS.PERMISSION.GET])
   async findAllUser(): Promise<IServiceUserGetAllResponse> {
     const users: IUser[] = await this.userService.findAllUser();
     if (users) {
@@ -159,12 +146,13 @@ export class UserController {
     }
   }
 
-  @MessagePattern('user_get_by_id')
+  @MessagePattern('get_user_by_id')
   @Get(':id')
-  @Permission([CONSTANTS.ROLE.ADMIN], [CONSTANTS.PERMISSION.GET])
-  async findOne(@Param('id') id: number): Promise<IServiceUserGetByIdResponse> {
+  @Authorization(true)
+  async findOne(@Query('id') id: number): Promise<IServiceUserGetByIdResponse> {
+    
     const user: IUser = await this.userService.findOne(id);
-
+    
     if (user) {
       return {
         status: HttpStatus.OK,
@@ -182,34 +170,16 @@ export class UserController {
 
   @MessagePattern({cmd: 'user_update_by_id'})
   @Put()
-  @UseInterceptors(new ValidationInterceptor(udpateUserDTO))
-  @Authorization(true)
-  @Permission([CONSTANTS.ROLE.ADMIN], [CONSTANTS.PERMISSION.UPDATE])
   async updateUser(
     @Body() user: udpateUserDTO
   ): Promise<CreateUserResponseDto> {
     const userUpdate: any = await this.userService.updateUser(user);
 
     if (userUpdate) {
-      const notice: createNotificationDTO = {
-        title: `Your's profile just updated`,
-        desc: `${user.username}'s profile has been updated by Admin`,
-        // url:`/users/profile?id=${createUserResponse.user._id}` ,
-        // type:'info'
-        isSeen: true,
-        email: userUpdate.email,
-        user: userUpdate.id,
-        updateBy: user.updateBy,
-        createBy: user.updateBy,
-      };
-
-      await this.notificationServiceClient.emit('Create_Message', notice);
       return {
         status: HttpStatus.OK,
         message: CONSTANTS.MASSAGE.USER_LOG.CREATE_USER_SUCCESSFULL,
-        data: {
-          user: userUpdate,
-        },
+        user: userUpdate,
       };
     } else {
       return {
@@ -221,11 +191,9 @@ export class UserController {
 
   @MessagePattern({cmd: 'user_delete_by_id'})
   @Delete(':id')
-  @Authorization(true)
-  @Permission([CONSTANTS.ROLE.ADMIN], [CONSTANTS.PERMISSION.DELETE])
   async removeUser(@Param('id') id: number): Promise<any> {
     try {
-      await this.notificationServiceClient.emit('Delete_Message_By_userId', id);
+      // await this.notificationServiceClient.emit('Delete_Message_By_userId', id);
       await this.userService.removeUser(id);
       return {
         status: HttpStatus.OK,

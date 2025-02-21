@@ -33,11 +33,9 @@ import { decodeToken } from '@config';
   
     @SubscribeMessage('force_reload')
     async handleMessage(@ConnectedSocket() socket: Socket, @MessageBody() data:any) {
-      console.log(data);
       setTimeout(()=> {
         this.server.to(data.userId).emit('message', data);
-
-      },1000)
+      },3000)
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     afterInit(socket: Socket): any {}

@@ -11,7 +11,6 @@ export class AuthController {
   // @Post()
   public async createToken(data: { userId: number; roleId: number }): Promise<ITokenDataResponse> {
     let result: ITokenDataResponse;
-    console.log(data);
     
     if (data && data.userId) {
       try {
@@ -54,7 +53,6 @@ export class AuthController {
   public async decodeToken(data: {
     token: string;
   }): Promise<ITokenDataResponse> {
-    console.log(data);
     
     const tokenData = decodeToken(data.token);
     return {

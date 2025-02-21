@@ -1,4 +1,4 @@
-import { } from '@config';
+import { AuthGuard } from '@config';
 import {
   Body,
   Controller,
@@ -8,7 +8,8 @@ import {
   HttpException,
   Inject,
   Param,
-  Put
+  Put,
+  UseGuards
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import {
@@ -20,6 +21,7 @@ import { firstValueFrom } from 'rxjs';
 import { Authorization } from '@config';
 import { HttpStatusCode } from 'axios';
   @Controller('notifications')
+  @UseGuards(AuthGuard)
   export class NotificationsController {
     constructor(
       @Inject('NOTIFICATION_SERVICE') private readonly notificationServiceClient: ClientProxy,

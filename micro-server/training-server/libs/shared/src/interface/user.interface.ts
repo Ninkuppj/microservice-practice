@@ -20,9 +20,7 @@ export interface IServiceUserCreateResponse {
 export interface IServiceUserUpdateResponse {
   status: number;
   message: string;
-  data: {
-    user: IUser | null;
-  };
+  user: IUser | null;
   errors: { [key: string]: any };
 }
 export interface IServiceUserGetAllResponse {

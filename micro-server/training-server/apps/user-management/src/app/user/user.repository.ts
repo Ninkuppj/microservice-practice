@@ -57,7 +57,6 @@ export class UserRepository extends Repository<User> {
     password = await bcrypt.hash(password, 10).then((data) => {
       return data;
     });
-    console.log(password);
     
     return password;
   }

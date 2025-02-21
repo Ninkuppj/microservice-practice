@@ -38,6 +38,7 @@ export default function Login() {
     setIsLoading(true);
 
     const res = await signIn("Credentials", { ...data, redirect: false });
+
     if (res?.status === 200) {
       router.push("/");
       router.refresh();

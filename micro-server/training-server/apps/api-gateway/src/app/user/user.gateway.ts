@@ -1,51 +1,54 @@
+import { AuthGuard, Authorization, CONSTANTS, CookieEmptyPipe, Cookies, Permission } from '@config';
 import {
-  Controller,
-  Post,
-  Get,
   Body,
-  Inject,
-  HttpStatus,
-  HttpException,
-  Param,
-  Res,
-  Put,
-  NotFoundException,
+  Controller,
   Delete,
+  Get,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Param,
+  Post,
+  Put,
+  Res,
+  UseFilters,
+  UseGuards,
+  UseInterceptors
 } from '@nestjs/common';
-import { firstValueFrom } from 'rxjs';
 import { ClientKafka, ClientProxy } from '@nestjs/microservices';
-import {} from '@config';
 import {
-  CreateUserResponseDto,
-  IServiceUserCreateResponse,
+  createNotificationDTO,
   createUserDTO,
-  GetUserByIdResponse,
-  IServiceUserGetByIdResponse,
+  CreateUserResponseDto,
+  CustomExceptionFilter,
   GetUserAllResponse,
+  GetUserByIdResponse,
+  IServiceUserCreateResponse,
   IServiceUserGetAllResponse,
+  IServiceUserGetByIdResponse,
+  IServiceUserSearchResponse,
+  IServiceUserUpdateResponse,
+  IServiveTokenCreateResponse,
   LoginDTO,
   LoginUserResponseDTO,
-  IServiceUserSearchResponse,
-  IServiveTokenCreateResponse,
-  NotificationDTO,
   udpateUserDTO,
   UpdateUserResponseDto,
-  IServiceUserUpdateResponse,
-  createNotificationDTO,
+  ValidationInterceptor
 } from '@shared';
-import { Authorization } from '@config';
-import { Permission } from '@config';
-import { CONSTANTS } from '@config';
-import { CookieEmptyPipe, Cookies } from '@config';
-@Controller('users')
+import { firstValueFrom } from 'rxjs';
+@Controller('user')
+@UseGuards(AuthGuard)
+@UseFilters(CustomExceptionFilter)
 export class UsersController {
   constructor(
     @Inject('USER_SERVICE') private readonly userServiceClient: ClientProxy,
+    @Inject('NOTIFICATION_SERVICE') private readonly notificationServiceClient: ClientKafka,
     @Inject('AUTH_SERVICE') private readonly authServiceClient: ClientProxy,
     ) {}
 
   @Post()
   @Authorization(true)
+  @UseInterceptors(new ValidationInterceptor(createUserDTO))
   @Permission([CONSTANTS.ROLE.ADMIN], [CONSTANTS.PERMISSION.CREATE])
   public async createUser(
     @Body() userRequest: createUserDTO
@@ -67,16 +70,15 @@ export class UsersController {
     return {
       status: createUserResponse.status,
       message: createUserResponse.message,
-      data: {
-        user: createUserResponse.user,
-        token: '',
-      },
+      user: createUserResponse.user,
+      token: '',
       errors: null,
     };
   }
 
   @Put()
   @Authorization(true)
+  @UseInterceptors(new ValidationInterceptor(udpateUserDTO))
   @Permission([CONSTANTS.ROLE.ADMIN], [CONSTANTS.PERMISSION.UPDATE])
   public async updateUser(
     @Body() userRequest: udpateUserDTO
@@ -95,11 +97,26 @@ export class UsersController {
         createUserResponse.status
       );
     }
+    if(createUserResponse.user){
+      const notice: createNotificationDTO = {
+        title: `Your's profile just updated`,
+        desc: `${createUserResponse.user?.username}'s profile has been updated by Admin`,
+        // url:`/users/profile?id=${createUserResponse.user._id}` ,
+        // type:'info'
+        isSeen: true,
+        email: createUserResponse.user.email,
+        user: createUserResponse.user.id,
+        updateBy: createUserResponse.user.updateBy,
+        createBy: createUserResponse.user.updateBy,
+      };
+  
+      await this.notificationServiceClient.emit('Create_Message', notice);
+    }
     return {
       status: createUserResponse.status,
       message: createUserResponse.message,
       data: {
-        user: createUserResponse.data.user,
+        user: createUserResponse.user,
       },
       errors: null,
     };
@@ -113,7 +130,7 @@ export class UsersController {
   ): Promise<GetUserByIdResponse> {
     
     const userResponse: IServiceUserGetByIdResponse = await firstValueFrom(
-      this.userServiceClient.send('user_get_by_id', id)
+      this.userServiceClient.send('get_user_by_id', id)
     );
     
     return {
@@ -203,7 +220,7 @@ export class UsersController {
       data: {
         accessToken: createTokenResponse.token,
         refreshToken: createRefreshTokenResponse.token,
-        user:  getUserResponse.user
+        user:  getUserResponse.user.user
       },
       errors: null,
     };

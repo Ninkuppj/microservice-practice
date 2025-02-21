@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ClientProxyFactory } from '@nestjs/microservices';
-import { ConfigModule, ConfigService, genClientKafka } from '@training/config';
+import { AuthGuard, ConfigModule, ConfigService, genClientKafka } from '@training/config';
 import { NotificationsController } from './notification/notification.gateway';
 import { WebSocketGatewayModule } from './socket/socket.module';
 import { UsersController } from './user/user.gateway';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [ConfigModule,
@@ -38,10 +39,10 @@ import { UsersController } from './user/user.gateway';
       },
       inject: [ConfigService],
     },
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: AuthGuard,
-    // },
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
   ],
 })
 export class AppModule {}

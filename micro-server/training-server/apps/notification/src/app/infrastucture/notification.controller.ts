@@ -38,7 +38,6 @@ export class NotificationController {
   @EventPattern('Get_Message_By_userId')
   @Get('/user/:id')
   async findMessageByUser (@Param('id', ParseIntPipe) userId: number): Promise<GetNotificationByUserResponse>{
-    console.log(userId);
     
     const notifications:INotification[] = await this.getNoTificationsUseCaseProxy.getInstance().execute(userId);
     const countNotifi:number = await this.countNoTificationUseCaseProxy.getInstance().execute(userId)

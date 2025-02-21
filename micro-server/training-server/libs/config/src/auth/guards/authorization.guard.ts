@@ -40,6 +40,7 @@ import { CONSTANTS } from '../../constants';
         return true;
       }
       const request = context.switchToHttp().getRequest();
+      
       if (!request.headers.authorization) {
         return false;
       }
@@ -49,7 +50,7 @@ import { CONSTANTS } from '../../constants';
  
       
       const userInfo:any = await firstValueFrom(
-        this.userServiceClient.send('user_get_by_id', userTokenInfo!.userId as number),
+        this.userServiceClient.send('get_user_by_id', userTokenInfo!.userId as number),
       )
       const roleInfo:any = await firstValueFrom(
         this.authServiceClient.send('get_permission_by_roleId', userTokenInfo!.roleId),

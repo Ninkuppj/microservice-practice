@@ -13,7 +13,8 @@ export default class UserService {
     return data as any;
 }
   static async getById(userId: number) {
-    return callAPI(`${UserService.controller}/${userId}`);
+    const { status , data } = await callAPI(`${UserService.controller}/${userId}`)
+    return {status:status , user: data.user};
   }
   static async deleteUserById(userId: number) {
     return callAPI(`${UserService.controller}/${userId}`,{method:"DELETE"});

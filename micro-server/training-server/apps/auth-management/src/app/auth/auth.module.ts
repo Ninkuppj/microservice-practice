@@ -14,7 +14,6 @@ import { ClientProxyFactory } from '@nestjs/microservices';
       JwtModule.registerAsync({
         imports: [ConfigModule],
         useFactory: (configService: ConfigService) => {
-      console.log('authService',configService.get());
           
           return {
             secret: configService.get().auth.access_token_secret,

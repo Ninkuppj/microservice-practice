@@ -27,7 +27,6 @@ import { UserService } from './user.service';
     provide: 'USER_SERVICE',
     useFactory: (configService: ConfigService) => {
       const userServiceOptions = configService.get().userService; 
-      console.log('userService',configService.get());
       return ClientProxyFactory.create(userServiceOptions!);
     },
     inject: [ConfigService],
@@ -36,7 +35,6 @@ import { UserService } from './user.service';
     provide: 'AUTH_SERVICE',
     useFactory: (configService: ConfigService) => {
       const authServiceOptions = configService.get().authService; 
-             
       return ClientProxyFactory.create(authServiceOptions!);
     },
     inject: [ConfigService],
