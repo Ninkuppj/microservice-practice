@@ -10,6 +10,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Res,
   UseFilters,
   UseGuards,
@@ -22,7 +23,7 @@ import {
   CreateUserResponseDto,
   CustomExceptionFilter,
   GetUserAllResponse,
-  GetUserByIdResponse,
+  GetUserDetailResponse,
   IServiceUserCreateResponse,
   IServiceUserGetAllResponse,
   IServiceUserGetByIdResponse,
@@ -127,12 +128,30 @@ export class UsersController {
   @Permission([CONSTANTS.ROLE.ADMIN, CONSTANTS.ROLE.USER], [CONSTANTS.PERMISSION.GET])
   public async getUserById(
     @Param('id') id: number
-  ): Promise<GetUserByIdResponse> {
+  ): Promise<GetUserDetailResponse> {
     
     const userResponse: IServiceUserGetByIdResponse = await firstValueFrom(
       this.userServiceClient.send('get_user_by_id', id)
     );
     
+    return {
+      status: userResponse.status,
+      message: userResponse.message,
+      data: {
+        user: userResponse.user,
+      },
+      errors: null,
+    };
+  }
+  @Post('get-user-by-email')
+  @Authorization(true)
+  public async getUserByEmail(
+    @Body('email') email: string
+  ): Promise<GetUserDetailResponse> {
+    
+    const userResponse: IServiceUserGetByIdResponse = await firstValueFrom(
+      this.userServiceClient.send('find_user_by_email', email)
+    );
     return {
       status: userResponse.status,
       message: userResponse.message,
@@ -201,7 +220,7 @@ export class UsersController {
     const createTokenResponse: IServiveTokenCreateResponse =
       await firstValueFrom(
         this.authServiceClient.send('token_create', {
-          userId: getUserResponse.user.user.id,
+          userId: getUserResponse.user.user.email,
           roleId: getUserResponse.user.user.role.id
         }),
       );   
@@ -209,7 +228,7 @@ export class UsersController {
       const createRefreshTokenResponse: IServiveTokenCreateResponse =
       await firstValueFrom(
         this.authServiceClient.send('token_create', {
-          userId: getUserResponse.user.user.id,
+          userId: getUserResponse.user.user.email,
           roleId: getUserResponse.user.user.role.id
         }),
       );         

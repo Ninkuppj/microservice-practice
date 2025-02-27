@@ -6,7 +6,8 @@ import { CONSTANTS } from "./lib/constants";
 import { CircularProgress } from "@nextui-org/react";
 // import { User } from "@@user-management-vector-icon.jpg"
 export default function Home() {
-  const { profile }: any = useProfile();
+  const { profile, loading }: any = useProfile();
+  console.log(profile, loading);
 
   return (
     <main className="flex min-h-screen flex-col items-center p-24 text-black bg-white">
@@ -27,9 +28,9 @@ export default function Home() {
         <h2 className="text-left mr-2 text-xl font-bold">Services</h2>
         <hr className="w-[85%] border-1 border-gray-200 " />
       </div>
-      {profile!.role?.id === undefined ? <div className="flex items-center space-x-4"><CircularProgress aria-label="Loading..." />Loading...</div> : <div className="grid text-center grid-cols-2 lg:w-full lg:text-left">
+      {loading ? <div className="flex items-center space-x-4"><CircularProgress aria-label="Loading..." />Loading...</div> : <div className="grid text-center grid-cols-2 lg:w-full lg:text-left">
         {
-          profile.role?.id !== CONSTANTS.ROLE.USER && <Link
+          profile?.role.id !== CONSTANTS.ROLE.USER && <Link
             href="/dashboard/users"
             className="group rounded-lg border-2 m-2  border-gray-200 border-transparent px-5 py-2 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-500 hover:dark:bg-neutral-800/30 "
             // target="_blank"

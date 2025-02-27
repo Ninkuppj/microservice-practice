@@ -31,7 +31,8 @@ export class UserRepository extends Repository<User> {
     });
   }
 
-  async searchUserByEmail(email: string): Promise<User | null> {
+  async findUserByEmail(email: string): Promise<User | null> {
+    
     return await this.findOne({
       relations: {
         role: true,
@@ -49,7 +50,7 @@ export class UserRepository extends Repository<User> {
     );
   }
 
-  async removeUserById(id: number): Promise<any> {
+  async deleteUserById(id: number): Promise<any> {
     return await this.delete(id);
   }
 

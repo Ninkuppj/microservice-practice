@@ -1,20 +1,20 @@
 import { Controller, HttpStatus, Post } from "@nestjs/common";
 import { MessagePattern } from "@nestjs/microservices";
 import { AuthService } from "./auth.service";
-import { IGetPermissionByroleIdResponse, IRole, ITokenDataResponse } from '@shared';
+import { IGetPermissionByroleIdResponse, ILoginRespone, IRole, ITokenDataResponse } from '@shared';
 import { CONSTANTS, decodeToken } from "@config";
 @Controller()
 export class AuthController {
-  constructor(private readonly tokenService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @MessagePattern('token_create')
   // @Post()
-  public async createToken(data: { userId: number; roleId: number }): Promise<ITokenDataResponse> {
+  public async createToken(data: { email: string; roleId: number }): Promise<ITokenDataResponse> {
     let result: ITokenDataResponse;
     
-    if (data && data.userId) {
+    if (data && data.email) {
       try {
-        const createResult = await this.tokenService.createToken(data.userId, data.roleId);
+        const createResult = await this.authService.createToken(data.email, data.roleId);
         result = {
           status: HttpStatus.CREATED,
           message: CONSTANTS.MASSAGE.AUTH_LOG.CREATE_SUCCESSFULLY,
@@ -41,7 +41,7 @@ export class AuthController {
   public async refreshToken(data:{
     refreshToken: string
   } ): Promise<ITokenDataResponse>{
-      const tokenData = await this.tokenService.refreshToken(data.refreshToken);
+      const tokenData = await this.authService.refreshToken(data.refreshToken);
       return {
         status: tokenData ? HttpStatus.OK : HttpStatus.UNAUTHORIZED,
         message: tokenData ? CONSTANTS.MASSAGE.AUTH_LOG.CREATE_SUCCESSFULLY : CONSTANTS.LOG_MESSAGE_REQUEST.UNAUTHORIZED,
@@ -67,7 +67,7 @@ export class AuthController {
     
     if (!!roleId) {
       try {
-      const  role:IRole = await this.tokenService.getPermissionByroleId(roleId);
+      const  role:IRole = await this.authService.getPermissionByroleId(roleId);
       
       return {
         status: HttpStatus.OK,
@@ -90,5 +90,11 @@ export class AuthController {
           role: null
           };
     }
+  }
+
+  @MessagePattern('login')
+  public async login (credential:{email:string, password:string}): Promise<ILoginRespone> {
+    const result =  await this.authService.login(credential.email,credential.password);
+    return result;
   }
 }

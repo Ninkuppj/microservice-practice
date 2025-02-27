@@ -48,9 +48,7 @@ export class AuthGuardModule {
            module: AuthGuardModule,
            global: true,
            providers: [AuthGuard,JwtService],
-           exports:[AuthGuard,
-                    JwtService
-                    ]
+           exports:[AuthGuard, JwtService]
        };
    }
 }

@@ -58,10 +58,10 @@ export class AuthRepository extends Repository<Role>{
     };
   }
 
-  public async createToken(userId: number,roleId: number): Promise<any> {
+  public async createToken(email: string,roleId: number): Promise<any> {
     const token = this.jwtService.sign(
       {
-        userId,
+        email,
         roleId
       },
       {
@@ -76,7 +76,7 @@ export class AuthRepository extends Repository<Role>{
   public async refreshToken(refreshToken: string){
     try{
       let data = this.jwtService.verify(refreshToken, {ignoreExpiration: true});
-      const newAccessToken=this.createToken(data['userId'],data['roleId']);
+      const newAccessToken=this.createToken(data['email'],data['roleId']);
       return newAccessToken;
     }catch(err){
       throw new HttpException('Invalid Token',HttpStatus.UNAUTHORIZED);

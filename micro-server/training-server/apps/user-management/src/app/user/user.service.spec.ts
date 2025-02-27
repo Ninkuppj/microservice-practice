@@ -45,11 +45,11 @@ describe('AppService', () => {
             ),
             findAllUser: jest.fn((id) => Promise.resolve([mockUser])),
             findUserById: jest.fn((id) => Promise.resolve(mockUser)),
-            searchUserByEmail: jest.fn((email) => Promise.resolve(mockUser)),
+            findUserByEmail: jest.fn((email) => Promise.resolve(mockUser)),
             updateUser: jest.fn<any, [udpateUserDTO]>((data) =>
               Promise.resolve({ ...mockUser, username: 'NYK HAWK' })
             ),
-            removeUserById: jest.fn((id) => Promise.resolve(true)),
+            deleteUserById: jest.fn((id) => Promise.resolve(true)),
           }),
         },
       ],
@@ -101,11 +101,11 @@ describe('AppService', () => {
       expect(service.createUser).toHaveBeenCalledWith(mockUser);
     });
   });
-  describe('searchUserByEmail', () => {
+  describe('findUserByEmail', () => {
     it('should return "user by email of User in service"', () => {
       // Mocking the getUserById method
       service
-        .searchUserByEmail({ email: mockUser.email, password: 'nin@123' })
+        .findUserByEmail({ email: mockUser.email, password: 'nin@123' })
         .then((data) => {
           expect(data).toEqual({
             status: 200,
@@ -116,7 +116,7 @@ describe('AppService', () => {
     });
     it('should can not search by password wrong', async () => {
       try {
-        await service.searchUserByEmail({
+        await service.findUserByEmail({
           email: 'ninn@gmail.com',
           password: '',
         });
@@ -130,14 +130,14 @@ describe('AppService', () => {
     });
     it('should can not search by email unknown', async () => {
       try {
-        service.searchUserByEmail = jest.fn().mockReturnValue(() =>
+        service.findUserByEmail = jest.fn().mockReturnValue(() =>
           Promise.resolve({
             status: HttpStatus.NOT_FOUND,
             message: CONSTANTS.MASSAGE.USER_LOG.NOT_FOUND,
             user: null,
           })
         );
-        await service.searchUserByEmail({ email: '@gmail.com', password: '' });
+        await service.findUserByEmail({ email: '@gmail.com', password: '' });
       } catch (error) {
         expect(error).toEqual({
           status: HttpStatus.NOT_FOUND,
@@ -156,28 +156,9 @@ describe('AppService', () => {
         });
     });
   });
-  describe('comparePassword', () => {
-    it('should comparePassword return true', () => {
-      // Mocking the createUser method
-      service.comparePassword = jest.fn<Promise<boolean>, [string, string]>(
-        () => Promise.resolve(true)
-      );
-
-      const res = service.comparePassword('nin@123', mockUser.password);
-      expect(res).resolves.toEqual(true);
-    });
-    it('should comparePassword return false', () => {
-      // Mocking the createUser method
-      service.comparePassword = jest.fn<Promise<boolean>, [string, string]>(
-        () => Promise.resolve(false)
-      );
-      const res = service.comparePassword('123123', mockUser.password);
-      expect(res).resolves.toEqual(false);
-    });
-  });
   describe('removeUser', () => {
     it('should delete User', async () => {
-      const isDeleted = await service.removeUser(mockUser.id);
+      const isDeleted = await service.deleteUser(mockUser.id);
       expect(isDeleted).toEqual(true);
       // Verify that the method was called with the correct argument
     });

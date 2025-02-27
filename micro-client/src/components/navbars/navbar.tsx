@@ -9,8 +9,8 @@ import Button from '../buttons/Button';
 import Notification from '../notifications/notification';
 import PopoverUser from './_components/userPopover';
 const Header = memo(() => {
-    const {data} = useSession() as any; // get user data from session
-    
+    const { data } = useSession() as any; // get user data from session
+
     return (
         <header
             className={
@@ -20,15 +20,16 @@ const Header = memo(() => {
             {/* <SearchBar/> */}
             <section className="absolute right-0 md:mr-[48px] lg:mr-[50px] hidden md:block">
                 {
-                    data?.accessToken ? (
-                       <div className='space-x-2 flex'>
-                       <Notification/>
-                       <PopoverUser/>
-                       </div>
-                    ): (
-                        <Button label={<Link href={Routes.Login}>Login</Link>}/>
-                        
+                    data?.user.accessToken && (
+                        <div className='space-x-2 flex'>
+                            <Notification />
+                            <PopoverUser />
+                        </div>
                     )
+                    // : (
+                    //     <Button label={<Link href={Routes.Login}>Login</Link>} />
+
+                    // )
                 }
             </section>
         </header>

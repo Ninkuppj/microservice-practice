@@ -1,6 +1,6 @@
 import { IUser } from "../../interface/user.interface";
 
-export class GetUserByIdResponse {
+export class GetUserDetailResponse {
     status: number;
     message: string;
     data: {

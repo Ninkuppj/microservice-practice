@@ -4,16 +4,27 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 export const useProfile = () => {
-    const { data }: any = useSession();
-    const [account, setAccount] = useState({});
+    const { status, data }: any = useSession();
+    const [account, setAccount] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     useEffect(() => {
         const getProfile = async () => {
-            const { status, user } = await UserService.getById(data.user.id!)
-            if (status === 200 && user) { setAccount(user) };
-        };
-        if (data.user.id!) {
-            getProfile()
+            if (status === "authenticated" && data?.user?.email) {
+                setLoading(true);
+                setError(null);
+                try {
+                    const { status: statusRes, user } = await UserService.getByEmail(data.user.email)
+                    if (statusRes === 200 && user) { setAccount(user), setLoading(false) };
+                } catch (err: any) {
+                    setError(err);
+                }
+            } else {
+                setLoading(false); // Not authenticated, or email missing
+            }
         }
-    }, [])
-    return { profile: account };
+        getProfile()
+    }, [status, data?.user?.email])
+
+    return { profile: account, loading, error };
 }

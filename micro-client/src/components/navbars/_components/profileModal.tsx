@@ -1,17 +1,17 @@
 'use client'
 import { useProfile } from "@/app/lib/hooks/useProfile";
 import { Modal, Button, ModalHeader, ModalBody, ModalFooter, ModalContent, useDisclosure, Checkbox, Input } from "@nextui-org/react";
-export default function ProfileUserModal () {
-    const {isOpen, onOpen, onOpenChange} = useDisclosure();
-    const {profile} = useProfile() as any;
+export default function ProfileUserModal() {
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { profile } = useProfile() as any;
   return (
     <>
-    <button aria-label="Profile" onClick={onOpen} >
+      <button aria-label="Profile" onClick={onOpen} >
         Profile
-    </button> 
-      <Modal 
-        backdrop="opaque" 
-        isOpen={isOpen} 
+      </button>
+      <Modal
+        backdrop="opaque"
+        isOpen={isOpen}
         onOpenChange={onOpenChange}
         radius="lg"
         classNames={{
@@ -27,11 +27,11 @@ export default function ProfileUserModal () {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1"> Profile </ModalHeader>
-                <ModalBody>
-                    <Input readOnly type="email" label="Email" value={profile.email}/>
-                    <Input readOnly type="username" label="UserName" value={profile.username}/>
-                    <Input readOnly type="role" label="Role" value={profile.role.name}/>
-                </ModalBody>
+              <ModalBody>
+                <Input readOnly type="email" label="Email" value={profile.email} />
+                <Input readOnly type="username" label="UserName" value={profile.username} />
+                <Input readOnly type="role" label="Role" value={profile.role.name} />
+              </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onPress={onClose}>
                   Close
@@ -42,5 +42,5 @@ export default function ProfileUserModal () {
         </ModalContent>
       </Modal>
     </>
-    )
+  )
 }

@@ -1,3 +1,4 @@
+import { IUser } from "./user.interface";
 
  export interface ITokenDataResponse {
     status: number;
@@ -22,4 +23,15 @@
     status: number;
     token: string | null;
     message: string;
+  }
+
+  export interface ILoginRespone {
+    status:number;
+    data:{
+      user:IUser;
+      accessToken:string;
+      refreshToken:string;
+    }|null;
+    message:string;
+    errors: { [key: string]: any } |null;
   }

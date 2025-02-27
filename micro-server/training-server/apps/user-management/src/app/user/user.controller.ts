@@ -9,35 +9,26 @@ import {
   Param,
   Post,
   Put,
-  Query,
-  UseFilters,
-  UseGuards,
-  UseInterceptors
+  Query
 } from '@nestjs/common';
 
 import {
-  AuthGuard,
   Authorization,
-  CONSTANTS,
-  Permission
+  CONSTANTS
 } from '@config';
 import {
-  ClientKafka,
   ClientProxy,
-  MessagePattern,
+  MessagePattern
 } from '@nestjs/microservices';
 import {
   CreateUserResponseDto,
-  CustomExceptionFilter,
-  GetUserByIdResponse,
+  GetUserDetailResponse,
   IServiceUserGetAllResponse,
   IServiceUserGetByIdResponse,
   IServiceUserSearchResponse,
   IServiveTokenCreateResponse,
   IUser,
   LoginDTO,
-  ValidationInterceptor,
-  createNotificationDTO,
   createUserDTO,
   udpateUserDTO
 } from '@shared';
@@ -54,7 +45,7 @@ export class UserController {
     private readonly userService: UserService
   ) {}
 
-  @MessagePattern({cmd: 'user_create'})
+  @MessagePattern({cmd: 'create_user'})
   async createUser(
     @Body() user: createUserDTO
   ): Promise<CreateUserResponseDto> {
@@ -86,49 +77,15 @@ export class UserController {
       };
     }
   }
-  @MessagePattern('user_search_by_email')
-  @Get('user_search_by_email')
-  async findByEmail(searchParams: {
-    email: string;
-    password: string;
-  }): Promise<GetUserByIdResponse>{
-    let result : any;
+  @MessagePattern('find_user_by_email')
+  @Get('find_user_by_email')
+  async findByEmail(email:string): Promise<GetUserDetailResponse>{
 
-    if (searchParams.email && searchParams.password) {
-      const user= await this.userService.searchUserByEmail(searchParams);
-      
-    if (user) {
-      if (await this.userService.comparePassword(searchParams.password, user.user.password) ) {
-        result = {
-          status: HttpStatus.OK,
-          message: 'user_search_by_credentials_success',
-          user: user,
-        };
-      } else {
-        result = {
-          status: HttpStatus.NOT_FOUND,
-          message: 'user_search_by_credentials_not_match',
-          user: null,
-        };
-      }
-    } else {
-      result = {
-        status: HttpStatus.NOT_FOUND,
-        message: 'user_search_by_credentials_not_found',
-        user: null,
-      };
-    }
-  } else {
-    result = {
-      status: HttpStatus.NOT_FOUND,
-      message: 'user_search_by_credentials_not_found',
-      user: null,
-    };
-  }
+      const result= await this.userService.findUserByEmail(email);
     return result;
   }
 
-  @MessagePattern('user_get_all')
+  @MessagePattern('get_all_user')
   @Get()
   async findAllUser(): Promise<IServiceUserGetAllResponse> {
     const users: IUser[] = await this.userService.findAllUser();
@@ -168,7 +125,7 @@ export class UserController {
     }
   }
 
-  @MessagePattern({cmd: 'user_update_by_id'})
+  @MessagePattern({cmd: 'update_user_by_id'})
   @Put()
   async updateUser(
     @Body() user: udpateUserDTO
@@ -189,12 +146,12 @@ export class UserController {
     }
   }
 
-  @MessagePattern({cmd: 'user_delete_by_id'})
+  @MessagePattern({cmd: 'delete_user_by_id'})
   @Delete(':id')
   async removeUser(@Param('id') id: number): Promise<any> {
     try {
       // await this.notificationServiceClient.emit('Delete_Message_By_userId', id);
-      await this.userService.removeUser(id);
+      await this.userService.deleteUser(id);
       return {
         status: HttpStatus.OK,
         message: 'delete User successfull',
@@ -206,46 +163,5 @@ export class UserController {
         user: null,
       };
     }
-  }
-  @Post('login')
-  public async loginUser(@Body() loginRequest: LoginDTO): Promise<any> {
-    const getUserResponse: IServiceUserSearchResponse =
-      await this.userService.searchUserByEmail(loginRequest);
-    if (getUserResponse.status !== HttpStatus.OK) {
-      throw new HttpException(
-        {
-          message: getUserResponse.message,
-          data: null,
-          errors: null,
-        },
-        HttpStatus.UNAUTHORIZED
-      );
-    }
-    const createTokenResponse: IServiveTokenCreateResponse =
-      await firstValueFrom(
-        this.authService.send('token_create', {
-          userId: getUserResponse.user.id,
-          roleId: getUserResponse.user.role.id,
-        })
-      );
-
-    const createRefreshTokenResponse: IServiveTokenCreateResponse =
-      await firstValueFrom(
-        this.authService.send('token_create', {
-          userId: getUserResponse.user.id,
-          roleId: getUserResponse.user.role.id,
-        })
-      );
-    // res.cookie('auth_token', createTokenResponse.token) beffore use cookie in respone  run command // npm i cookie-parser   // npm i -D @types/cookie-parser
-    return {
-      status: HttpStatus.OK,
-      message: createTokenResponse.message,
-      data: {
-        accessToken: createTokenResponse.token,
-        refreshToken: createRefreshTokenResponse.token,
-        user: getUserResponse.user,
-      },
-      errors: null,
-    };
   }
 }

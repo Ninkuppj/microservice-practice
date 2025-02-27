@@ -11,7 +11,7 @@ export default function Login() {
   const router = useRouter();
   const [isError, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const session: any = useSession();
+  const { data, status } = useSession();
   const {
     register,
     handleSubmit,
@@ -24,7 +24,7 @@ export default function Login() {
   });
 
   useEffect(() => {
-    if (session.data) {
+    if (data) {
       return router.replace('/');
     }
   }, [])
@@ -36,7 +36,6 @@ export default function Login() {
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     setIsLoading(true);
-
     const res = await signIn("Credentials", { ...data, redirect: false });
 
     if (res?.status === 200) {
@@ -49,7 +48,7 @@ export default function Login() {
     }
   };
   // session.data ?  router.replace('/') 
-  return !session.data &&
+  return status === 'unauthenticated' &&
     <>
       <Head>
         <title>Training</title>

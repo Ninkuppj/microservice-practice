@@ -1,15 +1,15 @@
-import React from 'react';
-import Image from 'next/image';
-import { signOut, useSession } from 'next-auth/react';
-import SidebarRow from './SidebarRow';
-import Button from '../buttons/Button';
-import Link from 'next/link';
-import { useProfile } from '@/app/lib/hooks/useProfile';
 import { CONSTANTS } from '@/app/lib/constants';
+import { useSession } from 'next-auth/react';
+import Image from 'next/image';
+import Link from 'next/link';
+import SidebarRow from './SidebarRow';
+import { useProfile } from '@/app/lib/hooks/useProfile';
 function Sidebar() {
-  const { data }: any = useSession();
+  // const { data }: any = useSession();
   // const setOpen = useSetRecoilState();
-  // const {profile}:any = useProfile();
+  const { profile }: any = useProfile();
+  console.log(profile);
+
   return (
     <nav className='z-20 hidden md:flex flex-col md:w-[8%] xl:w-[16%] 3xl:w-[21%] px-3 pt-2 pb-5 fixed top-0 left-0 h-screen border-r border-[#dbdbdb] bg-white text-black'>
       <div className='hidden xl:inline-flex px-3 pt-[25px] pb-4 mt-[4px]'>
@@ -31,7 +31,7 @@ function Sidebar() {
           <SidebarRow path={<HomeIcon />} title='Home' active={true} />
         </Link>
         <hr className="border-1 w-full" />
-        {data.user.role !== CONSTANTS.ROLE.USER && <Link href={'/dashboard/users'} >
+        {profile.role.id !== CONSTANTS.ROLE.USER && <Link href={'/dashboard/users'} >
           <SidebarRow path={<UserIcon />} title='User' />
           <hr className="border-1 w-full" />
         </Link>

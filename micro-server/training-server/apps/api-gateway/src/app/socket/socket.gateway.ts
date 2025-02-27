@@ -1,17 +1,16 @@
-import {
-    ConnectedSocket,
-    MessageBody,
-    OnGatewayConnection,
-    OnGatewayDisconnect,
-    OnGatewayInit,
-    SubscribeMessage,
-    WebSocketGateway,
-    WebSocketServer,
-  } from '@nestjs/websockets';
-  import { Server, Socket } from 'socket.io';
-  import { ForbiddenException, Injectable } from '@nestjs/common';
-import { decode } from 'punycode';
 import { decodeToken } from '@config';
+import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ConnectedSocket,
+  MessageBody,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  OnGatewayInit,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
+} from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
   
   @Injectable()
   @WebSocketGateway({ cors: {
@@ -33,9 +32,7 @@ import { decodeToken } from '@config';
   
     @SubscribeMessage('force_reload')
     async handleMessage(@ConnectedSocket() socket: Socket, @MessageBody() data:any) {
-      setTimeout(()=> {
-        this.server.to(data.userId).emit('message', data);
-      },3000)
+        await this.server.to(data.userId).emit('message', data);
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     afterInit(socket: Socket): any {}

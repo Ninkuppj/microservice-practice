@@ -39,8 +39,10 @@ export default function UserManagement() { // Run this effect only once on compo
         const fetchUsers = async () => {
             const res = await UserService.getAllUser();
             if (!res) throw new Error('Failed to load users');
-            return res.users;
+
+            return res.data.users;
         };
+
         fetchUsers().then((data: any) => setUserList(data));
     }, [])
     const handleReceiveData = async (data: any) => {

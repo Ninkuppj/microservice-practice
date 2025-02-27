@@ -4,7 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@config';
 import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Role, connectDB } from '@shared';
+import { Permission, Role, User, connectDB } from '@shared';
 import { AuthRepository } from './auth.repository';
 import { ClientProxyFactory } from '@nestjs/microservices';
 
@@ -22,10 +22,10 @@ import { ClientProxyFactory } from '@nestjs/microservices';
         inject: [ConfigService],
       }),
       ConfigModule,
-      TypeOrmModule.forFeature([Role]),
+      TypeOrmModule.forFeature([Role, User, Permission]),
     ],
   controllers: [AuthController],
-  providers: [AuthRepository,AuthService,
+  providers: [AuthService, AuthRepository,
   {
     provide: 'USER_SERVICE',
     useFactory: (configService: ConfigService) => {

@@ -1,18 +1,13 @@
+import { CONSTANTS } from '@config';
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import {
-  IServiceUserSearchResponse,
-  IUser,
+  GetUserDetailResponse,
   LoginDTO,
   User,
-  UserDTO,
   createUserDTO,
-  udpateUserDTO,
+  udpateUserDTO
 } from '@shared';
-import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
 import { UserRepository } from './user.repository';
-import { CONSTANTS } from '@config';
 
 @Injectable()
 export class UserService {
@@ -25,27 +20,19 @@ export class UserService {
   async findOne(id: number): Promise<any> {
     return this.userRepository.findUserById(id);
   }
-  async searchUserByEmail(
-    loginRequest: LoginDTO
-  ): Promise<IServiceUserSearchResponse> {
+  async findUserByEmail(
+    email:string
+  ): Promise<GetUserDetailResponse> {
     let result: any;
-    const user: User | null = await this.userRepository.searchUserByEmail(
-      loginRequest.email
+    const user: User | null = await this.userRepository.findUserByEmail(
+      email
     );
     if (user) {
-      if (await this.comparePassword(loginRequest.password, user!.password)) {
         result = {
           status: HttpStatus.OK,
-          message: CONSTANTS.MASSAGE.USER_LOG.LOGIN_SUCCESS,
+          message: CONSTANTS.MASSAGE.USER_LOG.GET_USER_SUCCESS,
           user: user,
         };
-      } else {
-        result = {
-          status: HttpStatus.NOT_FOUND,
-          message: CONSTANTS.MASSAGE.USER_LOG.WRONG_CREDENTIALS,
-          user: null,
-        };
-      }
     } else {
       result = {
         status: HttpStatus.NOT_FOUND,
@@ -58,18 +45,12 @@ export class UserService {
   async findAllUser(): Promise<User[]> {
     return this.userRepository.findAllUser();
   }
-  async comparePassword(
-    enteredPassword: string,
-    dbPassword: string
-  ): Promise<boolean> {
-    return await bcrypt.compare(enteredPassword, dbPassword);
-  }
-
+  
   async updateUser(user: udpateUserDTO): Promise<any> {
     return this.userRepository.updateUser(user);
   }
 
-  async removeUser(id: number): Promise<any> {
-    return await this.userRepository.removeUserById(id);
+  async deleteUser(id: number): Promise<any> {
+    return await this.userRepository.deleteUserById(id);
   }
 }

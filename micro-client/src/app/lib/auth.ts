@@ -1,8 +1,8 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import callAPI from "./api-helper";
-import UserService from "../api/users/route";
 import { CONSTANTS } from "./constants";
+import AuthService from "../api/public/route";
 export const authConfig: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -14,8 +14,7 @@ export const authConfig: NextAuthOptions = {
             },
         async authorize(credentials) {
             try {
-
-                const response:any = await UserService.login(credentials);
+                const response:any = await AuthService.login(credentials);
                 return response;
               } catch (error: any) {
                 if (error) {
@@ -48,7 +47,7 @@ export const authConfig: NextAuthOptions = {
           now.setMinutes(now.getMinutes() + 25);
           token.accessTokenExpiry = now;
           
-          token.id = user.data.user?.id ?? "";
+          token.email = user.data.user?.email ?? "";
           token.role = user.data.user?.role.id ?? 3;
 
           const shouldRefresh = new Date(token.accessTokenExpiry) < new Date();
@@ -59,7 +58,7 @@ export const authConfig: NextAuthOptions = {
 
           try {
           const refreshTokenResponse:any = await callAPI(
-            'users/refresh-token',
+            'auth/refresh-token',
             {
               body: user.data.refreshToken,
             }
@@ -72,7 +71,7 @@ export const authConfig: NextAuthOptions = {
           now.setMinutes(now.getMinutes() + 25);
           token.accessTokenExpiry = now;
           } catch (error) {
-          token.error = "RefreshAccessTokenError";
+          token.error = "RefreshToken Invalid";
         }
       }
   
@@ -89,20 +88,23 @@ export const authConfig: NextAuthOptions = {
         }
       },
     async session({ session, token }:any) {
-        if (token) {
-            session.user.id = token.id;
-            session.user.role = token.role;
-
-            session.accessToken = token.accessToken;
-            session.refreshToken = token.refreshToken;
-            session.accessTokenExpiry = token.accessTokenExpiry;
-            session.error = token.error;
-        }
+        session.user = token
         return Promise.resolve(session);
     },
   },
   session: {
     strategy: 'jwt',
 },
+logger: {
+  error(code, metadata) {
+    console.error(code, metadata)
+  },
+  warn(code) {
+    console.warn(code)
+  },
+  debug(code, metadata) {
+    console.debug(code, metadata)
+  }
+}
 };
 

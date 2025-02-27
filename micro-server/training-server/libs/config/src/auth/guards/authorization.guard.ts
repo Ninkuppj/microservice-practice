@@ -62,7 +62,6 @@ import { CONSTANTS } from '../../constants';
           !validatePermission(roleInfo.role.permissions || [], routePermissions.permissions) &&
           !validateRole(userTokenInfo?.roleId || [], routePermissions.roles)
         ) {
-          console.log(1);
           
           throw new HttpException(
             'You do not have enough privileges to perform this action!',

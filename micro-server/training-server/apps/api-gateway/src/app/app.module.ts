@@ -5,13 +5,14 @@ import { NotificationsController } from './notification/notification.gateway';
 import { WebSocketGatewayModule } from './socket/socket.module';
 import { UsersController } from './user/user.gateway';
 import { APP_GUARD } from '@nestjs/core';
+import { AuthsController } from './auth/auth.gateway';
 
 @Module({
   imports: [ConfigModule,
     genClientKafka(process.env.KAFKA_GROUP_ID_SERVICE as string),
     WebSocketGatewayModule
   ],
-  controllers: [UsersController,NotificationsController],
+  controllers: [UsersController,NotificationsController, AuthsController],
   providers: [
     {
       provide: 'AUTH_SERVICE',
